@@ -23,9 +23,10 @@ import java.util.List;
  */
 public abstract class SQLOrderLineDAO implements IOrderLineDAO {
 
-    private static final String SQL_GET = "";
-    private static final String SQL_INSERT = "";
-    private static final String SQL_DELETE = "";
+    private static final String SQL_GET = "SELECT NUM_LIG, FKCOMMANDE_LIG, FKARTICLE_LIG, ETAT_LIG,PAYE_LIG,PRIX_LIG FROM TLIGNECMD";
+    private static final String SQL_INSERT = "INSERT INTO TLIGNECMD(FKCOMMANDE_LIG, FKARTICLE_LIG, PRIX_LIG) VALUES(?,?,?) RETURNING NUM_LIG,ETAT_LIG, PAYE_LIG";
+    private static final String SQL_DELETE = "DELETE FROM TLIGNECMD WHERE FKCOMMANDE_LIG = ? AND NUM_LIG = ?";
+    private static final String SQL_DELETE_LINES = "DELETE FROM TLIGNECMD WHERE FKCOMMANDE_LIG = ?";
 
     private static final Logger logger = LoggerFactory.getLogger(SQLOrderDAO.class);
     private final SQLDAOFactory factory;
@@ -36,12 +37,28 @@ public abstract class SQLOrderLineDAO implements IOrderLineDAO {
 
     @Override
     public boolean deleteOrderLines(Order order) {
-        //TODO
-        return false;
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_DELETE_LINES))
+        {
+            query.setInt(1, order.getNumber());
+            if(query.executeUpdate() != 0)
+            {
+                query.getConnection().commit();
+                return true;
+            } else {
+                query.getConnection().rollback();
+                return false;
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error("Could not delete order lines for order :" + order, e);
+            return false;
+        }
     }
 
     @Override
     public OrderLine getById(OrderLineId id) {
+        //TODO
         return null;
     }
 
@@ -56,7 +73,7 @@ public abstract class SQLOrderLineDAO implements IOrderLineDAO {
             while(rs.next())
             {
                 Article article = factory.getArticleDAO().getById(rs.getString(3));
-                orderLines.add(new OrderLine(new OrderLineId(rs.getInt(1), rs.getInt(2)),
+                orderLines.add(new OrderLine(new OrderLineId(rs.getInt(2), rs.getInt(1)),
                         article,
                         OrderLineState.valueOf(rs.getString(4).trim()),
                         rs.getBoolean(5),
@@ -100,8 +117,24 @@ public abstract class SQLOrderLineDAO implements IOrderLineDAO {
 
     @Override
     public boolean delete(OrderLine object) throws Exception {
-        //TODO
-        return false;
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_DELETE))
+        {
+            query.setInt(1, object.getId().getOrderId());
+            query.setInt(2, object.getId().getOrderLineId());
+            if(query.executeUpdate() != 0)
+            {
+                query.getConnection().commit();
+                return true;
+            } else {
+                query.getConnection().rollback();
+                return false;
+            }
+
+        } catch (SQLException e)
+        {
+            logger.error("Could not delete order line:" + object, e);
+            return false;
+        }
     }
 
     @Override

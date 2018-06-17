@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -20,9 +21,9 @@ public class ConnectionFromFile implements IConnectionInformation {
 
     public ConnectionFromFile(String filename, Databases sgbd) {
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filename)))
+        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename))
         {
-            this.properties.load(br);
+            this.properties.load(stream);
             if (!this.properties.containsKey("url"))
                 this.properties.setProperty("url",
                         sgbd.buildServerURL(
