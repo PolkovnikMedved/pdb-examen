@@ -50,6 +50,16 @@ public class Order {
         this.articles = new ArrayList<>();
     }
 
+    public Order(Integer number, LocalDateTime arrivedMoment, LocalDateTime outMoment, OrderState state, Double total, Waiter waiter, List<OrderLine> articles) {
+        this.number = number;
+        this.arrivedMoment = arrivedMoment;
+        this.outMoment = outMoment;
+        this.state = state;
+        this.total = total;
+        this.waiter = waiter;
+        this.articles = articles;
+    }
+
     public Integer getNumber() {
         return number;
     }

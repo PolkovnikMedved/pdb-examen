@@ -1,5 +1,6 @@
 package be.solodoukhin.dao;
 
+import be.solodoukhin.exception.RestaurantDeleteException;
 import be.solodoukhin.exception.RestaurantException;
 import be.solodoukhin.exception.RestaurantInsertException;
 import be.solodoukhin.model.Article;
@@ -21,11 +22,11 @@ import java.util.List;
  */
 public abstract class SQLArticleDAO implements IArticleDAO{
 
-    private static final String SQL_FROM_ID = "";
-    private static final String SQL_GET = "";
-    private static final String SQL_INSERT = "";
-    private static final String SQL_DELETE = "";
-    private static final String SQL_UPDATE = "";
+    private static final String SQL_BY_ID = "SELECT CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, FKETAPE_ART, FKCATEGORIE_ART FROM TARTICLE WHERE TRIM(CODE_ART) = ?";
+    private static final String SQL_GET = "SELECT CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, FKETAPE_ART, FKCATEGORIE_ART FROM TARTICLE";
+    private static final String SQL_INSERT = "INSERT INTO TARTICLE(CODE_ART, NOM_ART, DESCRIPTION_ART, FKETAPE_ART, PRIX_ART, DISPO_ART, CALORIE_ART, FKCATEGORIE_ART) VALUES(?,?,?,?,?,?,?,?)";
+    private static final String SQL_DELETE = "DELETE FROM TARTICLE WHERE CODE_ART = ?";
+    private static final String SQL_UPDATE = "UPDATE TARTICLE SET NOM_ART=?, DESCRIPTION_ART=?, FKETAPE_ART=?, PRIX_ART=?, DISPO_ART=?, CALORIE_ART=?, FKCATEGORIE_ART=? WHERE CODE_ART=?";
 
     private final SQLDAOFactory factory;
     private static final Logger logger = LoggerFactory.getLogger(SQLArticleDAO.class);
@@ -54,14 +55,13 @@ public abstract class SQLArticleDAO implements IArticleDAO{
     public Article getById(String id) {
 
         Article a = null;
-        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_FROM_ID))
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_BY_ID))
         {
-
             query.setString(1, id);
             ResultSet rs = query.executeQuery();
             if(rs.next())
             {
-                Category category = null;
+                Category category;
                 if(rs.getString(7) != null)
                 {
                     category = factory.getCategoryDAO().getById(rs.getString(7));
@@ -73,16 +73,13 @@ public abstract class SQLArticleDAO implements IArticleDAO{
                             (rs.getInt(5) == 1),
                             Step.getFromCode(rs.getString(6)),
                             category);
-
                 }
             }
-
         } catch (SQLException e)
         {
             logger.error("Could not read article with id = " + id, e);
             a = null;
         }
-
         return a;
     }
 
@@ -134,7 +131,6 @@ public abstract class SQLArticleDAO implements IArticleDAO{
     public String insert(Article object) throws RestaurantException {
 
         try{
-
             PreparedStatement query = factory.getConnection().prepareStatement(SQL_INSERT);
             query.setString(1, object.getCode());
             query.setString(2, object.getName());
@@ -156,11 +152,43 @@ public abstract class SQLArticleDAO implements IArticleDAO{
 
     @Override
     public boolean delete(Article object) throws RestaurantException {
-        return false;
+
+        PreparedStatement query;
+        try{
+            query = factory.getConnection().prepareStatement(SQL_DELETE);
+            query.setString(1, object.getCode());
+            query.execute();
+            query.getConnection().commit();
+        } catch (SQLException e)
+        {
+            logger.error("Could not delete the article : " + object);
+            throw new RestaurantDeleteException(e.getMessage(), object);
+        }
+
+        return true;
     }
 
     @Override
     public boolean update(Article object) throws RestaurantException {
-        return false;
+        PreparedStatement query;
+        try{
+            query = factory.getConnection().prepareStatement(SQL_UPDATE);
+            query.setString(1, object.getName());
+            query.setString(2, object.getDescription().orElse(""));
+            query.setString(3, Step.getCode(object.getStep()));
+            query.setDouble(4, object.getPrice());
+            query.setInt(5, object.getAvailable() == null ? 1 : object.getAvailable() ? 1 : 0);
+            query.setInt(6, object.getCalories());
+            query.setString(7, object.getCategory() == null ? null : object.getCategory().getCode());
+            query.setString(8, object.getCode());
+            query.execute();
+            query.getConnection().commit();
+
+        } catch (SQLException e)
+        {
+            logger.error("Could not update the article:" + object);
+            throw new RestaurantException(e.getMessage());
+        }
+        return true;
     }
 }
