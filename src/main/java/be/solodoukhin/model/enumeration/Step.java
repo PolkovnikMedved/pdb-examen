@@ -13,6 +13,10 @@ public enum Step {
 
     public static Step getFromCode(String code)
     {
+        if (code == null)
+        {
+            return Step.AUCCUNE;
+        }
         switch (code)
         {
             case "E":
@@ -28,6 +32,8 @@ public enum Step {
 
     public static String getCode(Step step)
     {
+        if(step == null || step.equals(Step.AUCCUNE)) return null;
+
         return step.name().substring(0,1);
     }
 }

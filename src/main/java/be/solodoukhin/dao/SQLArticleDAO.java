@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class SQLArticleDAO implements IArticleDAO{
 
     private static final String SQL_BY_ID = "SELECT CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, DISPO_ART, FKETAPE_ART, FKCATEGORIE_ART FROM TARTICLE WHERE TRIM(CODE_ART) = ?";
-    private static final String SQL_GET = "SELECT CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, FKETAPE_ART, FKCATEGORIE_ART FROM TARTICLE";
+    private static final String SQL_GET = "SELECT CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, DISPO_ART, FKETAPE_ART, FKCATEGORIE_ART FROM TARTICLE";
     private static final String SQL_INSERT = "INSERT INTO TARTICLE(CODE_ART, NOM_ART, DESCRIPTION_ART, FKETAPE_ART, PRIX_ART, DISPO_ART, CALORIE_ART, FKCATEGORIE_ART) VALUES(?,?,?,?,?,?,?,?)";
     private static final String SQL_DELETE = "DELETE FROM TARTICLE WHERE CODE_ART = ?";
     private static final String SQL_UPDATE = "UPDATE TARTICLE SET NOM_ART=?, DESCRIPTION_ART=?, FKETAPE_ART=?, PRIX_ART=?, DISPO_ART=?, CALORIE_ART=?, FKCATEGORIE_ART=? WHERE CODE_ART=?";
@@ -61,28 +61,19 @@ public abstract class SQLArticleDAO implements IArticleDAO{
             ResultSet rs = query.executeQuery();
             if(rs.next())
             {
-                Category category;
-                if(rs.getString(8) != null)
-                {
+                Category category = null;
+                if(rs.getString(8) != null) {
                     //CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART, FKETAPE_ART, FKCATEGORIE_ART
                     category = factory.getCategoryDAO().getById(rs.getString(8).trim());
-                    logger.info("1: ++++ " + rs.getString(1) + " ++++ ");
-                    logger.info("2: ++++ " + rs.getString(2) + " ++++ ");
-                    logger.info("3: ++++ " + rs.getString(3) + " ++++ ");
-                    logger.info("4: ++++ " + rs.getString(4) + " ++++ ");
-                    logger.info("5: ++++ " + rs.getString(5) + " ++++ ");
-                    logger.info("6: ++++ " + rs.getString(6) + " ++++ ");
-                    logger.info("7: ++++ " + rs.getString(7) + " ++++ ");
-                    logger.info("8: ++++ " + rs.getString(8) + " ++++ ");
+                }
                     a = new Article(id ,
                             rs.getString(2),
                             rs.getString(3),
                             rs.getInt(4),
                             rs.getDouble(5),
                             (rs.getInt(6) == 1),
-                            Step.getFromCode(rs.getString(7).trim()),
+                            Step.getFromCode(rs.getString(7) != null ? rs.getString(7).trim() : null),
                             category);
-                }
             }
         } catch (SQLException e)
         {
@@ -111,6 +102,15 @@ public abstract class SQLArticleDAO implements IArticleDAO{
                     category = categoryDAO.getById(rs.getString(8));
                 }
 
+                logger.info("1. " + rs.getString(1));
+                logger.info("2. " + rs.getString(2));
+                logger.info("3. " + rs.getString(3));
+                logger.info("4. " + rs.getString(4));
+                logger.info("5. " + rs.getString(5));
+                logger.info("6. " + rs.getString(6));
+                logger.info("7. " + rs.getString(7));
+                logger.info("8. " + rs.getString(8));
+                //CODE_ART, NOM_ART, DESCRIPTION_ART, CALORIE_ART, PRIX_ART,  DISPO, FKETAPE_ART, FKCATEGORIE_ART
                 articles.add(new Article(
                         rs.getString(1),
                         rs.getString(2),
@@ -140,13 +140,14 @@ public abstract class SQLArticleDAO implements IArticleDAO{
     public String insert(Article object) throws RestaurantException {
 
         try{
+            //CODE_ART, NOM_ART, DESCRIPTION_ART, FKETAPE_ART, PRIX_ART, DISPO_ART, CALORIE_ART, FKCATEGORIE_ART
             PreparedStatement query = factory.getConnection().prepareStatement(SQL_INSERT);
             query.setString(1, object.getCode());
             query.setString(2, object.getName());
             query.setString(3, object.getDescription().orElse(""));
             query.setString(4, Step.getCode(object.getStep()));
             query.setDouble(5, object.getPrice());
-            query.setInt(6, object.getAvailable() ? 1 : 0);
+            query.setInt(6, object.getAvailable() == null ? 1 : object.getAvailable() ? 1 : 0);
             query.setInt(7, object.getCalories());
             query.setString(8, object.getCategory() == null ? null : object.getCategory().getCode());
             query.execute();

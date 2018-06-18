@@ -138,7 +138,7 @@ public abstract class SQLOrderLineDAO implements IOrderLineDAO {
     }
 
     @Override
-    public boolean update(OrderLine object) throws Exception {
+    public boolean update(OrderLine object) throws OperationNotSupportedException {
         throw new OperationNotSupportedException();
     }
 }

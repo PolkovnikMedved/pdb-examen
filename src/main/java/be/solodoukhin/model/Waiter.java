@@ -35,10 +35,11 @@ public class Waiter {
      */
     private String email;
 
-    public Waiter(String code, String lastName, String firstName) {
+    public Waiter(String code, String lastName, String firstName, String email) {
         this.code = code;
         this.lastName = lastName;
         this.firstName = firstName;
+        this.email = email;
     }
 
     public Waiter(String code, String lastName, String firstName, String phone, String mobilePhone, String email) {

@@ -17,8 +17,8 @@ import java.util.List;
  */
 public abstract class SQLWaiterDAO implements IWaiterDAO {
 
-    private static String sqlFromId = "SELECT CODE_SER, NOM_SER, PRENOM_SER FROM TSERVEUR WHERE TRIM(CODE_SER) = ?";
-    private static String sqlWaiters = "SELECT CODE_SER, NOM_SER, PRENOM_SER FROM TSERVEUR";
+    private static String sqlFromId = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR WHERE TRIM(CODE_SER) = ?";
+    private static String sqlWaiters = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR";
     private static String sqlInsert;
     private static String sqlUpdate;
     private static String sqlDelete;
@@ -42,8 +42,8 @@ public abstract class SQLWaiterDAO implements IWaiterDAO {
             ResultSet rs = query.executeQuery();
             if(rs.next())
             {
-                waiter = new Waiter(rs.getString("CODE_SER"), rs.getString("NOM_SER"),
-                        rs.getString("PRENOM_SER"));//TODO ADD PHONES
+                waiter = new Waiter(rs.getString(1), rs.getString(2),
+                        rs.getString(3), rs.getString(4));//TODO ADD PHONES
             }
         } catch (SQLException e)
         {
@@ -62,7 +62,7 @@ public abstract class SQLWaiterDAO implements IWaiterDAO {
             ResultSet rs = query.executeQuery();
             while(rs.next())
             {
-                waiters.add(new Waiter(rs.getString(1), rs.getString(2), rs.getString(3)));
+                waiters.add(new Waiter(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
             }
         } catch (SQLException e)
         {
