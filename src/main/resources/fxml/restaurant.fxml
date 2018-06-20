@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:controller="be.solodoukhin.controller.RestaurantController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <Label text="Bienvenue au restaurant ISFCE" BorderPane.alignment="CENTER" />
    </top>
@@ -14,7 +14,7 @@
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Automate" />
-            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Article" />
+            <Button fx:id="getArticleButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Article" />
             <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Serveur" />
          </children>
       </VBox>
