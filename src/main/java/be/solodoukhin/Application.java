@@ -1,6 +1,9 @@
 package be.solodoukhin;
 
 import be.solodoukhin.controller.RestaurantController;
+import be.solodoukhin.service.ConnectionSingleton;
+import be.solodoukhin.service.connection.ConnectionFromFile;
+import be.solodoukhin.service.url.Databases;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +23,10 @@ public class Application extends javafx.application.Application{
         primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
         */
+
+        //connect to database
+        ConnectionSingleton.setConnectionInformation(new ConnectionFromFile("connectionRestoTest.properties", Databases.FIREBIRD));
+
         RestaurantController restaurantController = new RestaurantController();
         restaurantController.start(primaryStage);
     }

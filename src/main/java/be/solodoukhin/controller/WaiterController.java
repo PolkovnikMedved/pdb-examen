@@ -5,8 +5,6 @@ import be.solodoukhin.dao.firebird.FireBirdWaiterDAO;
 import be.solodoukhin.exception.RestaurantException;
 import be.solodoukhin.model.Waiter;
 import be.solodoukhin.service.ConnectionSingleton;
-import be.solodoukhin.service.connection.ConnectionFromFile;
-import be.solodoukhin.service.url.Databases;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -20,7 +18,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 
-import java.sql.Connection;
 import java.util.Optional;
 
 /**
@@ -66,9 +63,7 @@ public class WaiterController {
     private void setUp()
     {
         // Set Up connection
-        ConnectionSingleton.setConnectionInformation(new ConnectionFromFile("connectionRestoTest.properties", Databases.FIREBIRD));
-        Connection connection = ConnectionSingleton.getConnexion();
-        this.waiterDAO = new FireBirdWaiterDAO(new FireBirdDAOFactory(connection));
+        this.waiterDAO = new FireBirdWaiterDAO(new FireBirdDAOFactory(ConnectionSingleton.getConnexion()));
 
         // define column properties
         this.code.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getCode()));

@@ -1,6 +1,5 @@
 package be.solodoukhin.controller;
 
-import be.solodoukhin.Application;
 import be.solodoukhin.dao.FireBirdDAOFactory;
 import be.solodoukhin.dao.firebird.FireBirdArticleDAO;
 import be.solodoukhin.dao.firebird.FireBirdCategoryDAO;
@@ -9,8 +8,6 @@ import be.solodoukhin.model.Article;
 import be.solodoukhin.model.Category;
 import be.solodoukhin.model.enumeration.Step;
 import be.solodoukhin.service.ConnectionSingleton;
-import be.solodoukhin.service.connection.ConnectionFromFile;
-import be.solodoukhin.service.url.Databases;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -20,7 +17,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -82,10 +78,8 @@ public class ArticleController {
     private void setUp()
     {
         // Set Up connection
-        ConnectionSingleton.setConnectionInformation(new ConnectionFromFile("connectionRestoTest.properties", Databases.FIREBIRD));
-        Connection connection = ConnectionSingleton.getConnexion();
-        this.articleDAO = new FireBirdArticleDAO(new FireBirdDAOFactory(connection));
-        FireBirdCategoryDAO categoryDAO = new FireBirdCategoryDAO(new FireBirdDAOFactory(connection));
+        this.articleDAO = new FireBirdArticleDAO(new FireBirdDAOFactory(ConnectionSingleton.getConnexion()));
+        FireBirdCategoryDAO categoryDAO = new FireBirdCategoryDAO(new FireBirdDAOFactory(ConnectionSingleton.getConnexion()));
 
         // Set up choice boxes
         List<String> categoryNames = categoryDAO.getCategoryLeaves().stream().map(Category::getName).sorted().collect(Collectors.toList());
