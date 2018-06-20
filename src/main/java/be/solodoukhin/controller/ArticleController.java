@@ -1,5 +1,6 @@
 package be.solodoukhin.controller;
 
+import be.solodoukhin.Application;
 import be.solodoukhin.dao.FireBirdDAOFactory;
 import be.solodoukhin.dao.firebird.FireBirdArticleDAO;
 import be.solodoukhin.dao.firebird.FireBirdCategoryDAO;
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +62,9 @@ public class ArticleController {
     @FXML
     private CheckBox isAvailable;
 
+    @FXML
+    private Button quitButton;
+
     public void initialize()
     {
         this.setUp();
@@ -70,6 +75,7 @@ public class ArticleController {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/articles.fxml"));
         Scene scene = new Scene(root, 400, 400);
         window.setScene(scene);
+        window.setTitle("Articles");
         window.show();
     }
 
@@ -168,6 +174,22 @@ public class ArticleController {
 
     public void exit()
     {
-        Platform.exit();
+        try{
+            RestaurantController restaurantController = new RestaurantController();
+            restaurantController.start((Stage) this.quitButton.getScene().getWindow());
+        }
+        catch (Exception e)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("An error occurred.");
+            alert.setHeaderText("Could not continue.");
+            alert.setContentText(e.getMessage());
+            Optional<ButtonType> result = alert.showAndWait();
+            e.printStackTrace();
+            if(result.isPresent())
+            {
+                Platform.exit();
+            }
+        }
     }
 }

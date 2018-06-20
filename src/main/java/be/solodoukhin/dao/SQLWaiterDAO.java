@@ -1,5 +1,8 @@
 package be.solodoukhin.dao;
 
+import be.solodoukhin.exception.RestaurantDeleteException;
+import be.solodoukhin.exception.RestaurantException;
+import be.solodoukhin.exception.RestaurantInsertException;
 import be.solodoukhin.model.Waiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +20,11 @@ import java.util.List;
  */
 public abstract class SQLWaiterDAO implements IWaiterDAO {
 
-    private static String sqlFromId = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR WHERE TRIM(CODE_SER) = ?";
-    private static String sqlWaiters = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR";
-    private static String sqlInsert;
-    private static String sqlUpdate;
-    private static String sqlDelete;
+    private static final String SQL_BY_ID = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR WHERE TRIM(CODE_SER) = ?";
+    private static final String SQL_ALL = "SELECT CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER FROM TSERVEUR";
+    private static final String SQL_INSERT = "INSERT INTO TSERVEUR(CODE_SER, NOM_SER, PRENOM_SER, EMAIL_SER) VALUES(?,?,?,?)";
+    private static final String SQL_UPDATE = "UPDATE TSERVEUR SET PRENOM_SER = ?, NOM_SER = ?, EMAIL_SER = ? WHERE TRIM(CODE_SER) = ?";
+    private static final String SQL_DELETE = "DELETE FROM TSERVEUR WHERE TRIM(CODE_SER) = ?";
 
     private final SQLDAOFactory factory;
     private static final Logger logger = LoggerFactory.getLogger(SQLWaiterDAO.class);
@@ -36,7 +39,7 @@ public abstract class SQLWaiterDAO implements IWaiterDAO {
         Waiter waiter = null;
         if(id == null) return null;
 
-        try(PreparedStatement query = factory.getConnection().prepareStatement(sqlFromId))
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_BY_ID))
         {
             query.setString(1, id);
             ResultSet rs = query.executeQuery();
@@ -57,7 +60,7 @@ public abstract class SQLWaiterDAO implements IWaiterDAO {
     public List<Waiter> getAll(String regularExpression) {
 
         List<Waiter> waiters = new ArrayList<>();
-        try(PreparedStatement query = factory.getConnection().prepareStatement(sqlWaiters))
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_ALL))
         {
             ResultSet rs = query.executeQuery();
             while(rs.next())
@@ -72,36 +75,60 @@ public abstract class SQLWaiterDAO implements IWaiterDAO {
     }
 
     @Override
-    public String insert(Waiter object) throws Exception {
+    public String insert(Waiter object) throws RestaurantInsertException {
         if(object == null) return null;
 
-        try(PreparedStatement query = factory.getConnection().prepareStatement(sqlInsert))
+        try(PreparedStatement query = factory.getConnection().prepareStatement(SQL_INSERT))
         {
-            //TODO SET DATA
-            query.executeUpdate();
-            query.getConnection().commit();
+            query.setString(1, object.getCode());
+            query.setString(2, object.getLastName());
+            query.setString(3, object.getFirstName());
+            query.setString(4, object.getEmail().orElse(null));
 
+            query.execute();
+            query.getConnection().commit();
+            return object.getCode();
         } catch (SQLException e)
         {
             logger.error("Could not insert waiter: " + object, e);
-            return null;
+            throw new RestaurantInsertException("Could not insert waiter:" + object, object);
+        }
+    }
+
+    @Override
+    public boolean delete(Waiter object) throws RestaurantDeleteException {
+
+        PreparedStatement query;
+        try{
+            query = factory.getConnection().prepareStatement(SQL_DELETE);
+            query.setString(1, object.getCode());
+            query.execute();
+            query.getConnection().commit();
+        } catch (SQLException e)
+        {
+            logger.error("Could not delete waiter: " + object, e);
+            throw new RestaurantDeleteException("Could not delete waiter:" + object, object);
         }
 
-        return object.getCode();
+        return true;
     }
 
     @Override
-    public boolean delete(Waiter object) throws Exception {
-
-        //TODO
-
-        return false;
-    }
-
-    @Override
-    public boolean update(Waiter object) throws Exception {
-        //TODO
-
-        return false;
+    public boolean update(Waiter object) throws RestaurantException {
+        PreparedStatement query;
+        try{
+            query = factory.getConnection().prepareStatement(SQL_UPDATE);
+            query.setString(1, object.getFirstName());
+            query.setString(2, object.getLastName());
+            query.setString(3, object.getEmail().orElse(null));
+            query.setString(4, object.getCode());
+            query.execute();
+            query.getConnection().commit();
+        } catch (SQLException e)
+        {
+            logger.error("Could not update waiter: " + object, e);
+            throw new RestaurantException("Could not update waiter:" + object);
+        }
+        return true;
     }
 }

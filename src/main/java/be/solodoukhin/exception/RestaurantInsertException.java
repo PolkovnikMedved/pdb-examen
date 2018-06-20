@@ -1,16 +1,14 @@
 package be.solodoukhin.exception;
 
-import be.solodoukhin.model.Article;
-
 public class RestaurantInsertException extends RestaurantException {
-	private final Article a;
+	private final Object o;
 
-	public Article getA() {
-		return a;
+	public Object getA() {
+		return o;
 	}
 
-	public RestaurantInsertException(String message, Article a) {
+	public RestaurantInsertException(String message, Object a) {
 		super(message);
-		this.a = a;
+		this.o = a;
 	}
 }

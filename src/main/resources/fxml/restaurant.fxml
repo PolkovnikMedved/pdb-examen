@@ -15,7 +15,7 @@
          <children>
             <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Automate" />
             <Button fx:id="getArticleButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Article" />
-            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Serveur" />
+            <Button fx:id="getWaitersButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Serveurs" />
          </children>
       </VBox>
    </left>

@@ -1,17 +1,16 @@
 package be.solodoukhin.exception;
 
-import be.solodoukhin.model.Article;
 
 public class RestaurantDeleteException extends RestaurantException {
 
-	private final Article a;
+	private final Object a;
 
-	public RestaurantDeleteException(String message, Article a) {
+	public RestaurantDeleteException(String message, Object a) {
 		super(message);
 		this.a = a;
 	}
 
-	public Article getA() {
+	public Object getA() {
 		return a;
 	}
 

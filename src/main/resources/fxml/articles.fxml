@@ -84,7 +84,7 @@
                         <Insets right="5.0" />
                     </HBox.margin>
                 </Button>
-                <Button text="Quitter" onAction="#exit">
+                <Button fx:id="quitButton" text="Retour" onAction="#exit">
                     <HBox.margin>
                         <Insets left="5.0" />
                     </HBox.margin></Button>
